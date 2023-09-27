@@ -1,18 +1,19 @@
+from ast import arg
 from instagrapi import Client
 from instagrapi.types import Media
 from argparse import ArgumentParser
 from concurrent.futures import ThreadPoolExecutor, as_completed
 
 from termcolor import colored
-from os.path import abspath, isdir, exists
+from os.path import abspath, isdir, exists, dirname
 from os import mkdir
 from dotenv import load_dotenv
 from os import getenv
 from traceback import format_exc
+from sys import argv
 
 from instagrapi.exceptions import UserNotFound, PleaseWaitFewMinutes, BadPassword
 from pydantic import ValidationError
-from requests import ReadTimeout
 from requests.exceptions import RetryError
 from colorama import just_fix_windows_console
 # PATH_DIR = abspath('test/')
@@ -22,11 +23,11 @@ from colorama import just_fix_windows_console
 
 
 just_fix_windows_console() # as stated in the doc, we need this for colorama to work
-load_dotenv() # load our vars in .env
+cwd = dirname(abspath(argv[0]))
+load_dotenv(f"{cwd}/.env") # load our vars in .env
 USERNAME = getenv('INSTA_USERNAME')
 PASSWORD = getenv('INSTA_PASSWORD')
-SETTINGS_FILE = ".\\dumps.json"
-
+SETTINGS_FILE = f"{cwd}/dumps.json"
 
 def main() -> None:
     args = ArgumentParser()
@@ -56,7 +57,7 @@ def main() -> None:
         print(colored("[-]both of the input or one of the input is not provided in .env file, proceeding, an error might occur.", 'red'))
                     
     if not isdir(parsed.directory):
-            print(colored(f"[-]directory {parsed.directory} does not exist", 'blue'))
+            print(colored(f"[!]directory {parsed.directory} does not exist", 'blue'))
             print(colored(f"[-]creating directory {parsed.directory}...", 'blue'))
             mkdir(abspath(parsed.directory))
             
@@ -65,7 +66,7 @@ def main() -> None:
             userid = get_user_id(client, parsed.username)
         except Exception:
             return
-        
+
     if parsed.hashtag:
         try:
             hashtags = get_hashtag(client, parsed.hashtag, parsed.limit) # when limit is too high, it stops working
