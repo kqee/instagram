@@ -16,7 +16,7 @@ from instagrapi.exceptions import UserNotFound, PleaseWaitFewMinutes, BadPasswor
 from pydantic import ValidationError
 from requests.exceptions import RetryError
 from colorama import just_fix_windows_console
-# PATH_DIR = abspath('test/')
+
 # TODO: add path checking, if not exist, create [DONE]
 # NOTE:
 # this program doesnt work at times, i am not willing to fix it lolz
@@ -87,21 +87,21 @@ def main() -> None:
                 client,
                 url,
                 abspath(parsed.directory),
-            ): f"https://www.instagram.com/p/{url.code}"
+            ): url
             for url in data # enumerate to keep track, somewhat a hack
         }
         
         # below code checks for error, might improve this later on
         for num,future in enumerate(as_completed(futures), start=1):
-            url = futures[future]
+            url = f"https://instagram/p/{futures[future].code}"
             try:
-                print(colored(colored(f"[{num}/{total}]attempting to install {url}", "blue")))
+                print(colored(f"[{num}/{total}]attempting to install {url}", "blue"))
                 future.result()
             except Exception as e:
-                print(colored(colored(f"[!]failed installing {url} with error: {e}", "red")))
+                print(colored(f"[!]failed installing {url} with error: {e}", "red"))
             else:
-                print(colored(colored(f"[-]success installing {url}", "green")))
-    print(colored("done"))
+                print(colored(f"[-]success installing {url} in {abspath(parsed.directory)}", "green"))
+    print(colored("done", 'light_green'))
 
     # non multithreaded way
     # for _,i in enumerate(data, start=1): 
